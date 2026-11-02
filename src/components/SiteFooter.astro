@@ -1,0 +1,48 @@
+---
+// Contact plus the sibling sites. Plain links, no icons.
+const elsewhere = [
+	{ href: 'https://photo.philcifone.com', label: 'photo.philcifone.com', note: 'photography' },
+	{ href: 'https://tech.philcifone.com', label: 'tech.philcifone.com', note: 'homelab docs' },
+	{ href: 'https://negativeearth.net', label: 'negativeearth.net', note: 'digital garden' },
+	{ href: 'https://keystonedreams.com', label: 'keystonedreams.com', note: 'PA photo project' },
+];
+---
+
+<footer class="site-footer mono">
+	<div class="wrap inner">
+		<p><a href="mailto:phil@philcifone.com">phil@philcifone.com</a></p>
+		<ul role="list">
+			{
+				elsewhere.map(({ href, label, note }) => (
+					<li>
+						<a href={href}>{label}</a> <span class="note">— {note}</span>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</footer>
+
+<style>
+	.site-footer {
+		border-top: var(--hairline);
+		color: var(--muted);
+	}
+	.inner {
+		display: grid;
+		gap: var(--space-3);
+		padding-block: var(--space-4);
+	}
+	ul {
+		display: grid;
+		gap: var(--space-1);
+		padding: 0;
+		list-style: none;
+	}
+	@media (min-width: 48rem) {
+		.inner {
+			grid-template-columns: 1fr auto;
+			align-items: start;
+		}
+	}
+</style>

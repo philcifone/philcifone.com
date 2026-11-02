@@ -1,0 +1,117 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import WorkCard from '../components/WorkCard.astro';
+import { getWork } from '../lib/work';
+
+const featured = await getWork({ featuredOnly: true });
+
+// Fixed-scope services. No prices on the page.
+const services = [
+	{
+		title: 'Digital Archive Survey & Disaster-Recovery Preparedness Assessment',
+		body: 'An inventory of digital assets, domain names, current hardware, and an overview of your local network. I’ll review your needs, assess risks, and deliver a plan.',
+	},
+	{
+		title: 'Digital archive setup',
+		body: 'I lay the groundwork by prioritizing the archiving of time-tested legacy file formats on cutting-edge file systems, so you can digitize your prints, negatives and ephemera from the start the right way. I’ll recommend hardware and help configure your systems and backups, work with you on developing a digital archive structure based on your existing workflow, develop custom tooling based on your needs, and leave you with a handy reference guide for site-wide application and onboarding of new employees.',
+	},
+	{
+		title: 'Portfolio & archive websites',
+		body: 'Fast, static sites owned by the artist. No subscriptions, no platform lock-in. Support when you need it.',
+	},
+];
+---
+
+<BaseLayout>
+	<section class="intro" aria-labelledby="intro-heading">
+		<h1 id="intro-heading">Photographer &amp; digital archivist.</h1>
+		<p class="positioning">
+			My mission is to bring real living-archive experience, open-source and custom tooling, and a
+			passion for preservation together for artists’ studios and small cultural organizations. To
+			create and develop systems and tools that work for their employees today and into the future,
+			when today’s work becomes the archive, so it can withstand turbulent technological change.
+		</p>
+	</section>
+
+	<section aria-labelledby="services-heading">
+		<h2 id="services-heading" class="section-label mono">Services</h2>
+		<ol class="services" role="list">
+			{
+				services.map(({ title, body }, i) => (
+					<li>
+						<span class="mono num">{String(i + 1).padStart(2, '0')}</span>
+						<h3>{title}</h3>
+						<p>{body}</p>
+					</li>
+				))
+			}
+		</ol>
+	</section>
+
+	<section aria-labelledby="work-heading">
+		<h2 id="work-heading" class="section-label mono">Selected work</h2>
+		<ol class="contact-sheet featured" role="list">
+			{
+				featured.map((entry) => (
+					<li>
+						<WorkCard entry={entry} sizes="(min-width: 66rem) 31rem, (min-width: 40rem) 50vw, 100vw" />
+					</li>
+				))
+			}
+		</ol>
+		<p class="more mono"><a href="/work/">All work →</a></p>
+	</section>
+
+	<section aria-labelledby="contact-heading">
+		<h2 id="contact-heading" class="section-label mono">Contact</h2>
+		<p>
+			If you have an archive, a collection or a website that needs looking after or creating,
+			write to <a href="mailto:phil@philcifone.com">phil@philcifone.com</a>.
+		</p>
+	</section>
+</BaseLayout>
+
+<style>
+	section + section {
+		margin-top: var(--space-6);
+	}
+	.positioning {
+		margin-top: var(--space-3);
+		font-size: var(--step-1);
+	}
+	/* Small monospace labels above each section, with a hairline rule. */
+	.section-label {
+		font-size: var(--step--1);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--muted);
+		border-bottom: var(--hairline);
+		padding-bottom: var(--space-1);
+		margin-bottom: var(--space-4);
+	}
+	.services {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+		gap: var(--space-4);
+		padding: 0;
+		list-style: none;
+	}
+	.services li {
+		display: grid;
+		gap: var(--space-2);
+		align-content: start;
+	}
+	.num {
+		color: var(--accent);
+	}
+	/* Featured work runs two by two on wide screens, so four cards never
+	   leave one alone on a second row of three. */
+	@media (min-width: 40rem) {
+		.featured {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+	.more {
+		margin-top: var(--space-4);
+	}
+</style>

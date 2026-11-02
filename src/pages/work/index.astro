@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import { getWork } from '../../lib/work';
+
+const work = await getWork();
+---
+
+<BaseLayout
+	title="Work"
+	description="Websites and archive projects by Phil Cifone, for artists, small businesses and my own work."
+>
+	<h1>Work</h1>
+	<p class="lede">
+		Websites and archive projects. Each one is fast, static and owned outright by the person it
+		belongs to.
+	</p>
+
+	<ol class="contact-sheet" role="list">
+		{
+			work.map((entry) => (
+				<li>
+					<WorkCard entry={entry} headingLevel="h2" />
+				</li>
+			))
+		}
+	</ol>
+</BaseLayout>
+
+<style>
+	.lede {
+		margin-top: var(--space-3);
+		color: var(--muted);
+	}
+	.contact-sheet {
+		margin-top: var(--space-5);
+	}
+</style>

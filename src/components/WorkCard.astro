@@ -1,0 +1,142 @@
+---
+// One project on the contact sheet. The screenshot sits in a dark film
+// rebate, with an edge-print caption strip under it (frame number, title,
+// year), like a frame on a contact print.
+//
+// The whole card is clickable: the title link is stretched over it with
+// ::after, and the secondary links sit above that layer.
+import { Picture } from 'astro:assets';
+import {
+	type WorkEntry,
+	caseStudyHref,
+	frameNumber,
+	hasCaseStudy,
+	screenshotAlt,
+} from '../lib/work';
+
+interface Props {
+	entry: WorkEntry;
+	// h3 under a section heading (home page), h2 directly under the page h1 (/work).
+	headingLevel?: 'h2' | 'h3';
+	// Image `sizes`. The default matches the three-column contact sheet on /work.
+	sizes?: string;
+}
+
+const {
+	entry,
+	headingLevel: Heading = 'h3',
+	sizes = '(min-width: 64rem) 20rem, (min-width: 40rem) 50vw, 100vw',
+} = Astro.props;
+const { title, url, url_label, summary, year, client_type, stack, screenshot } = entry.data;
+const caseStudy = hasCaseStudy(entry);
+// Title goes to the case study if there is one, otherwise straight to the site.
+const primaryHref = caseStudy ? caseStudyHref(entry) : url;
+---
+
+<article class="card">
+	<figure class="film">
+		<Picture
+			src={screenshot}
+			alt={screenshotAlt(entry)}
+			formats={['avif']}
+			fallbackFormat="webp"
+			widths={[360, 640, 960, 1280]}
+			sizes={sizes}
+		/>
+		<figcaption class="edge mono">
+			{/* Each segment stays whole; long captions wrap at the spaces between them.
+			    Keep it on one line: Astro drops whitespace between elements across newlines. */}
+			<span class="frame-no">{frameNumber(entry)}</span> <span class="seg">— {title.toUpperCase()}</span> <span class="seg">— {year.toUpperCase()}</span>
+		</figcaption>
+	</figure>
+
+	<Heading class="title"><a href={primaryHref}>{title}</a></Heading>
+	<p class="meta mono">{client_type}</p>
+	<p>{summary}</p>
+
+	{
+		stack.length > 0 && (
+			<ul class="stack mono" role="list" aria-label="Built with">
+				{stack.map((tool) => <li>{tool}</li>)}
+			</ul>
+		)
+	}
+
+	<p class="links mono">
+		{caseStudy && <a href={caseStudyHref(entry)}>Case study →</a>}
+		<a href={url}>{url_label} <span aria-hidden="true">&#x2197;&#xFE0E;</span></a>
+	</p>
+</article>
+
+<style>
+	.card {
+		position: relative;
+		display: grid;
+		gap: var(--space-2);
+		align-content: start;
+	}
+
+	/* .film and .edge come from global.css; cards crop to the 16:10 desktop capture. */
+	.film {
+		transition: border-color 150ms ease;
+	}
+	.film :global(img) {
+		aspect-ratio: 16 / 10;
+		object-fit: cover;
+		object-position: top;
+	}
+
+	.seg {
+		white-space: nowrap;
+	}
+
+	.title {
+		margin-top: var(--space-1);
+		font-size: var(--step-1);
+	}
+	.title a {
+		color: var(--ink);
+		text-decoration: none;
+	}
+	/* Stretch the title link over the whole card. */
+	.title a::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+	}
+
+	/* The one hover: the frame edge and title pick up the accent. */
+	.card:hover .film,
+	.card:focus-within .film {
+		border-color: var(--accent);
+	}
+	.card:hover .title a,
+	.title a:focus-visible {
+		text-decoration: underline;
+		text-decoration-color: var(--accent);
+	}
+
+	.meta {
+		color: var(--muted);
+	}
+
+	.stack {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-1) var(--space-3);
+		padding: 0;
+		list-style: none;
+		color: var(--muted);
+	}
+
+	.links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-1) var(--space-4);
+	}
+	/* Above the stretched title link, so they stay clickable. */
+	.links a {
+		position: relative;
+		z-index: 1;
+	}
+</style>

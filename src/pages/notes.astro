@@ -1,0 +1,76 @@
+---
+// Curated index of technical write-ups. Each entry links out to the canonical
+// post on negativeearth.net or tech.philcifone.com; nothing is copied here.
+// Add or remove an entry in src/content/notes/.
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { hostname } from '../lib/work';
+
+const notes = (await getCollection('notes')).sort(
+	(a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+
+// "2026-01-11". Dates are parsed as UTC midnight, so format in UTC too.
+const isoDate = (d: Date) => d.toISOString().slice(0, 10);
+---
+
+<BaseLayout
+	title="Notes"
+	description="Technical write-ups by Phil Cifone on ZFS, backups, storage and image formats, from his own systems."
+>
+	<h1>Notes</h1>
+	<p class="lede">
+		A curated selection of write-ups from my personal blog or documentation site, from my own
+		systems administration experience, pertaining to storage, backups and post-mortems after
+		things go wrong.
+	</p>
+
+	<ol class="notes" role="list">
+		{
+			notes.map(({ id, data }) => (
+				<li id={id}>
+					<p class="meta mono">
+						<time datetime={isoDate(data.date)}>{isoDate(data.date)}</time> — {hostname(data.url)}
+					</p>
+					<h2>
+						<a href={data.url}>{data.title} <span aria-hidden="true">&#x2197;&#xFE0E;</span></a>
+					</h2>
+					<p>{data.summary}</p>
+				</li>
+			))
+		}
+	</ol>
+</BaseLayout>
+
+<style>
+	.lede {
+		margin-top: var(--space-3);
+		color: var(--muted);
+	}
+	.notes {
+		margin-top: var(--space-5);
+		padding: 0;
+		list-style: none;
+		border-top: var(--hairline);
+	}
+	.notes li {
+		display: grid;
+		gap: var(--space-1);
+		padding-block: var(--space-4);
+		border-bottom: var(--hairline);
+	}
+	.meta {
+		color: var(--muted);
+	}
+	h2 {
+		font-size: var(--step-1);
+	}
+	h2 a {
+		color: var(--ink);
+		text-decoration-color: var(--rule);
+	}
+	h2 a:hover,
+	h2 a:focus-visible {
+		text-decoration-color: var(--accent);
+	}
+</style>

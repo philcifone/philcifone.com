@@ -1,0 +1,195 @@
+---
+// Case study: /work/<slug>/. One page per work entry that has a markdown body.
+// The body supplies the prose (Project Overview / The Build / Ownership & Oversight);
+// this template adds the facts, the screenshots and the Links section.
+import { Picture } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { ogImagePath } from '../../lib/og';
+import {
+	type WorkEntry,
+	caseStudyHref,
+	frameNumber,
+	getWork,
+	hasCaseStudy,
+	hostname,
+	screenshotAlt,
+} from '../../lib/work';
+
+export async function getStaticPaths() {
+	const studies = (await getWork()).filter(hasCaseStudy);
+	// prev/next walk the contact sheet, skipping projects without a case study.
+	return studies.map((entry, i) => ({
+		params: { slug: entry.id },
+		props: { entry, prev: studies[i - 1], next: studies[i + 1] },
+	}));
+}
+
+interface Props {
+	entry: WorkEntry;
+	prev?: WorkEntry;
+	next?: WorkEntry;
+}
+
+const { entry, prev, next } = Astro.props;
+const { title, url, url_label, source, summary, client_type, year, stack } = entry.data;
+const { screenshot, screenshot_mobile } = entry.data;
+const { Content } = await render(entry);
+---
+
+<BaseLayout title={title} description={summary} ogImage={ogImagePath(`work/${entry.id}`)}>
+	<article>
+		<header class="head">
+			<p class="crumb mono">
+				<a href="/work/">Work</a> / Frame {frameNumber(entry)}
+			</p>
+			<h1>{title}</h1>
+			<p class="lede">{summary}</p>
+
+			<dl class="facts mono">
+				<div>
+					<dt>Client</dt>
+					<dd>{client_type}</dd>
+				</div>
+				<div>
+					<dt>Year</dt>
+					<dd>{year}</dd>
+				</div>
+				<div>
+					<dt>Stack</dt>
+					<dd>{stack.join(', ')}</dd>
+				</div>
+				<div>
+					<dt>{url_label ? 'Link' : 'Site'}</dt>
+					<dd><a href={url}>{hostname(url)}</a></dd>
+				</div>
+			</dl>
+		</header>
+
+		<!-- Desktop and phone captures side by side, each in a film rebate. -->
+		<div class:list={['frames', { 'has-mobile': screenshot_mobile }]}>
+			<figure class="film">
+				<Picture
+					src={screenshot}
+					alt={screenshotAlt(entry)}
+					formats={['avif']}
+					fallbackFormat="webp"
+					widths={[640, 960, 1440]}
+					sizes="(min-width: 64rem) 46rem, 100vw"
+					loading="eager"
+				/>
+				<figcaption class="edge mono">
+					<span class="frame-no">{frameNumber(entry)}A</span> — DESKTOP — 1440 × 900
+				</figcaption>
+			</figure>
+			{
+				screenshot_mobile && (
+					<figure class="film phone">
+						<Picture
+							src={screenshot_mobile}
+							alt={screenshotAlt(entry, { mobile: true })}
+							formats={['avif']}
+							fallbackFormat="webp"
+							widths={[240, 390, 780]}
+							sizes="12rem"
+							loading="eager"
+						/>
+						<figcaption class="edge mono">
+							<span class="frame-no">{frameNumber(entry)}B</span> — PHONE
+						</figcaption>
+					</figure>
+				)
+			}
+		</div>
+
+		<div class="prose">
+			<Content />
+
+			<h2>Links</h2>
+			<ul>
+				<li><a href={url}>{url_label}</a> — {hostname(url)}</li>
+				{source && <li><a href={source}>Source code</a> — {hostname(source)}</li>}
+			</ul>
+		</div>
+	</article>
+
+	{
+		(prev || next) && (
+			<nav class="pager mono" aria-label="More case studies">
+				{prev && (
+					<a href={caseStudyHref(prev)} rel="prev">
+						← {frameNumber(prev)} {prev.data.title}
+					</a>
+				)}
+				{next && (
+					<a class="next" href={caseStudyHref(next)} rel="next">
+						{frameNumber(next)} {next.data.title} →
+					</a>
+				)}
+			</nav>
+		)
+	}
+</BaseLayout>
+
+<style>
+	.crumb {
+		color: var(--muted);
+		margin-bottom: var(--space-2);
+	}
+	.lede {
+		margin-top: var(--space-3);
+		font-size: var(--step-1);
+	}
+
+	/* Facts as a row of labelled cells between hairlines. */
+	.facts {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+		gap: var(--space-3) var(--space-4);
+		margin-top: var(--space-4);
+		padding-block: var(--space-3);
+		border-block: var(--hairline);
+	}
+	dt {
+		color: var(--muted);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-size: 0.75rem;
+	}
+	dd {
+		margin: 0;
+		/* Long hostnames (cifonebrotherspainting.com) would push a phone screen sideways. */
+		overflow-wrap: anywhere;
+	}
+
+	.frames {
+		display: grid;
+		gap: var(--space-3);
+		margin-block: var(--space-5);
+		align-items: start;
+	}
+	@media (min-width: 40rem) {
+		.frames.has-mobile {
+			grid-template-columns: 1fr 12rem;
+		}
+	}
+	/* On narrow screens the phone frame would fill the width; keep it phone-sized. */
+	.phone {
+		max-width: 12rem;
+	}
+
+	/* .prose (the rendered markdown) is styled in global.css. */
+
+	.pager {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: var(--space-3);
+		margin-top: var(--space-6);
+		padding-top: var(--space-3);
+		border-top: var(--hairline);
+	}
+	.next {
+		margin-left: auto;
+	}
+</style>

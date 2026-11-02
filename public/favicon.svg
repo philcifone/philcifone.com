@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+	<style>
+		rect { fill: #fbf8f1; stroke: #282828; }
+		text { fill: #282828; }
+		@media (prefers-color-scheme: dark) {
+			rect { fill: #1d2021; stroke: #ebdbb2; }
+			text { fill: #ebdbb2; }
+		}
+	</style>
+	<rect x="0.5" y="0.5" width="31" height="31" stroke-width="1" />
+	<text x="16" y="21.5" font-family="'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">PC</text>
+</svg>

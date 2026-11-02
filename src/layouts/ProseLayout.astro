@@ -1,0 +1,44 @@
+---
+// Shell for long-form pages written as markdown in src/pages/ (e.g. archives.md, currently parked in drafts/).
+// The page's frontmatter supplies title, description and lede:
+//
+//   ---
+//   layout: ../layouts/ProseLayout.astro
+//   title: Archives
+//   description: For search results and link previews.
+//   lede: The paragraph under the heading.
+//   ---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+	frontmatter: {
+		title: string;
+		description?: string;
+		lede?: string;
+	};
+}
+
+const { title, description, lede } = Astro.props.frontmatter;
+---
+
+<BaseLayout title={title} description={description}>
+	<article>
+		<header>
+			<h1>{title}</h1>
+			{lede && <p class="lede">{lede}</p>}
+		</header>
+		<div class="prose">
+			<slot />
+		</div>
+	</article>
+</BaseLayout>
+
+<style>
+	.lede {
+		margin-top: var(--space-3);
+		font-size: var(--step-1);
+	}
+	.prose {
+		margin-top: var(--space-5);
+	}
+</style>

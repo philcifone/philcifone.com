@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="About" description="About Phil Cifone, photographer and digital archivist.">
+	<h1>About</h1>
+	<p class="body">
+		Phil Cifone is a living, breathing, human being that has existed somewhere on this planet
+		Earth since the late 20th century. He is passionate about art &amp; culture, its digital
+		&amp; physical preservation and its accessibility for current and future generations. He
+		enjoys photography, Linux, music, and books. Movies and TV are cool too.
+	</p>
+	<p>
+		He resides in the suburban vicinity of Philadelphia, Pennsylvania, in the United (for now)
+		States of America with his wife Amanda and their daughter Chloe where they read, cook, listen
+		to terrestrial radio, and trail run. They also have cats.
+	</p>
+	<p>
+		His photography and exhibition history are
+		at <a href="https://photo.philcifone.com/cv">photo.philcifone.com/cv</a>.
+	</p>
+</BaseLayout>
+
+<style>
+	.body {
+		margin-top: var(--space-3);
+	}
+	p + p {
+		margin-top: var(--space-3);
+	}
+</style>
